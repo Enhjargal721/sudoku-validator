@@ -1,21 +1,21 @@
-# Sudoku Validator Tests
+# Sudoku шалгах програмын тестүүд
 
-This directory documents the test cases used to verify the multithreaded Sudoku validator.
+Энэ хавтас нь олон урсгалт Sudoku шалгах програмын ажиллагааг шалгах тестийн тохиолдлуудын тайлбарыг агуулна.
 
-## Test 1: Valid Sudoku
+## Тест 1: Зөв Sudoku
 
-Input: A completed 9×9 Sudoku grid with digits 1–9 appearing exactly once in each row, column, and 3×3 subgrid.
+**Оролтын өгөгдөл:** 9×9 хэмжээтэй, мөр, багана болон 3×3 дэд хүснэгт бүрд 1–9 хүртэлх тоо давхардаагүй Sudoku.
 
-Expected result: All checks pass and the program displays `Sudoku result: VALID`.
+**Хүлээгдэж буй үр дүн:** Бүх шалгалт `PASS` болж, `Sudoku result: VALID` гэж гарна.
 
-## Test 2: Invalid Sudoku
+## Тест 2: Буруу Sudoku
 
-Input: A Sudoku grid containing a duplicate digit in a row.
+**Оролтын өгөгдөл:** Аль нэг мөрөнд ижил тоо давхардсан Sudoku.
 
-Expected result: The affected checks fail and the program displays `Sudoku result: INVALID`.
+**Хүлээгдэж буй үр дүн:** Холбогдох шалгалтууд `FAIL` болж, `Sudoku result: INVALID` гэж гарна.
 
-## Test 3: Out-of-range value
+## Тест 3: Хязгаараас гадуурх утга
 
-Input: A Sudoku grid containing a value outside the range 1–9.
+**Оролтын өгөгдөл:** 1–9-ийн хүрээнээс гадуурх тоо агуулсан Sudoku.
 
-Expected result: The program marks the relevant checks as failed and displays `Sudoku result: INVALID`.
+**Хүлээгдэж буй үр дүн:** Холбогдох шалгалтууд амжилтгүй болж, `Sudoku result: INVALID` гэж гарна.
