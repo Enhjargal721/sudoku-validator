@@ -5,18 +5,7 @@
 #define SIZE 9
 #define TOTAL_THREADS 11
 
-int sudoku[SIZE][SIZE] = {
-    {6, 2, 4, 5, 3, 9, 1, 8, 7},
-    {5, 1, 9, 7, 2, 8, 6, 3, 4},
-    {8, 3, 7, 6, 1, 4, 2, 9, 5},
-    {1, 4, 3, 8, 6, 5, 7, 2, 9},
-    {9, 5, 8, 2, 4, 7, 3, 6, 1},
-    {7, 6, 2, 3, 9, 1, 4, 5, 8},
-    {3, 7, 1, 9, 5, 6, 8, 4, 2},
-    {4, 9, 6, 1, 8, 2, 5, 7, 3},
-    {2, 8, 5, 4, 7, 3, 9, 1, 6}
-};
-
+int sudoku[SIZE][SIZE];
 int results[TOTAL_THREADS];
 
 void *check_rows(void *arg)
@@ -85,7 +74,26 @@ void *check_subgrid(void *arg)
     return NULL;
 }
 
-int main(void)
+int read_sudoku(void)
+{
+    printf("\nEnter 81 integers (1-9) for the Sudoku grid.\n");
+    printf("Enter 9 numbers per row, separated by spaces.\n\n");
+
+    for (int row = 0; row < SIZE; row++) {
+        printf("Row %d: ", row + 1);
+
+        for (int col = 0; col < SIZE; col++) {
+            if (scanf("%d", &sudoku[row][col]) != 1) {
+                printf("\nError: Please enter integers only.\n");
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+int validate_sudoku(void)
 {
     pthread_t threads[TOTAL_THREADS];
     int subgrid_ids[9];
@@ -94,27 +102,44 @@ int main(void)
         results[i] = 0;
     }
 
-    pthread_create(&threads[0], NULL, check_rows, NULL);
-    pthread_create(&threads[1], NULL, check_columns, NULL);
+    if (pthread_create(&threads[0], NULL, check_rows, NULL) != 0) {
+        printf("Error: Could not create row-check thread.\n");
+        return 0;
+    }
+
+    if (pthread_create(&threads[1], NULL, check_columns, NULL) != 0) {
+        pthread_join(threads[0], NULL);
+        printf("Error: Could not create column-check thread.\n");
+        return 0;
+    }
+
+    int created = 2;
 
     for (int i = 0; i < 9; i++) {
         subgrid_ids[i] = i;
 
-        pthread_create(
-            &threads[i + 2],
-            NULL,
-            check_subgrid,
-            &subgrid_ids[i]
-        );
+        if (pthread_create(
+                &threads[i + 2], NULL,
+                check_subgrid, &subgrid_ids[i]) != 0) {
+
+            for (int j = 0; j < created; j++) {
+                pthread_join(threads[j], NULL);
+            }
+
+            printf("Error: Could not create subgrid thread.\n");
+            return 0;
+        }
+
+        created++;
     }
 
     for (int i = 0; i < TOTAL_THREADS; i++) {
         pthread_join(threads[i], NULL);
     }
 
+    printf("\n--- Validation Results ---\n");
     printf("Row check: %s\n",
            results[0] ? "PASS" : "FAIL");
-
     printf("Column check: %s\n",
            results[1] ? "PASS" : "FAIL");
 
@@ -129,11 +154,37 @@ int main(void)
     for (int i = 0; i < TOTAL_THREADS; i++) {
         if (results[i] == 0) {
             valid = 0;
+            break;
         }
     }
 
     printf("\nSudoku result: %s\n",
            valid ? "VALID" : "INVALID");
 
+    return 1;
+}
+
+int main(void)
+{
+    char again;
+
+    do {
+        if (!read_sudoku()) {
+            return 1;
+        }
+
+        if (!validate_sudoku()) {
+            return 1;
+        }
+
+        printf("\nCheck another Sudoku? (y/n): ");
+
+        if (scanf(" %c", &again) != 1) {
+            return 1;
+        }
+
+    } while (again == 'y' || again == 'Y');
+
+    printf("\nProgram finished.\n");
     return 0;
 }
