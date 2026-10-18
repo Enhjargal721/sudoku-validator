@@ -51,3 +51,12 @@ gcc main.c -o sudoku_validator.exe -pthread
 ## Хиймэл оюуны хэрэглээ
 
 Төслийн код боловсруулах, кодын ажиллагааг тайлбарлах болон баримтжуулалт бэлтгэхэд ChatGPT-ийн тусламж ашигласан.
+
+## GTK график интерфэйсийг ажиллуулах
+
+GTK3 суулгасан MSYS2 UCRT64 орчинд дараах командуудыг ажиллуулна:
+
+```bash
+cd /c/OS-BD1/sudoku-validator
+gcc gui.c sudoku_core.c -o sudoku_gui.exe -pthread $(pkg-config --cflags --libs gtk+-3.0)
+./sudoku_gui.exe
