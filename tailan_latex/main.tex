@@ -1,0 +1,234 @@
+
+\documentclass[12pt,a4paper]{report}
+\usepackage{fontspec}
+\setmainfont{Noto Serif}
+\setmonofont{Noto Sans Mono}
+\usepackage{polyglossia}
+\newfontfamily\cyrillicfonttt{Noto Sans Mono}
+\newfontfamily\titlepagefont{Noto Sans}
+\setdefaultlanguage{mongolian}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{setspace,graphicx,float,booktabs,longtable,array,hyperref,xurl,enumitem,listings,amssymb}
+\onehalfspacing
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue,pdftitle={Олон урсгалт Sudoku шалгах програмын тайлан}}
+\setcounter{tocdepth}{2}
+\newcommand{\projectcode}{II-4-5}
+\newcommand{\teamnames}{Д. Алтан-Очир (B221940001); Б. Аззаяа (B242270803); О. Энхжаргал (B232230049); Н. Мөнхбаяр (B242270058); Ц. Тэргэл (B241940128); А. Найдан (B241930004)}
+\newcommand{\textbookproject}{Operating System Concepts (2018), Бүлэг 4: Threads \& Concurrency, Programming Project 5}
+\newcommand{\repo}{\url{https://github.com/Naidan2006/sudoku-validator}}
+\newcommand{\shot}[2]{\begin{figure}[H]\centering\IfFileExists{docs/screenshots/#1}{\includegraphics[width=0.85\textwidth]{docs/screenshots/#1}}{\fbox{\parbox{0.8\textwidth}{\centering Энд docs/screenshots/#1 зургийг байрлуулна. Файлын нэрийг шалгана.}}}\caption{#2}\end{figure}}
+\begin{document}
+\begin{titlepage}
+\vspace*{0.5cm}
+\begin{center}
+{\titlepagefont\large ШИНЖЛЭХ УХААН ТЕХНОЛОГИЙН ИХ СУРГУУЛЬ}\par\vspace{0.3cm}
+{\titlepagefont\normalsize МЭДЭЭЛЭЛ, ХОЛБООНЫ ТЕХНОЛОГИЙН СУРГУУЛЬ}\par\vspace{1.5cm}
+\IfFileExists{logo.png}{\includegraphics[width=3.5cm]{logo.png}}{\fbox{\parbox[c][3.5cm][c]{3.5cm}{\centering logo.png}}}\par\vspace{1.5cm}
+{\titlepagefont\Large CSM302 -- ҮЙЛДЛИЙН СИСТЕМ}\par\vspace{0.7cm}
+{\titlepagefont\Large БИЕ ДААЛТ 1}\par\vspace{1.2cm}
+{\titlepagefont\LARGE\textbf{SUDOKU SOLUTION VALIDATOR}}\par\vspace{0.4cm}
+{\titlepagefont\large Олон урсгалт Sudoku шийдэл шалгах програм}\par\vspace{0.4cm}
+{\titlepagefont\large Эцсийн тайлан}\par\vspace{1.2cm}
+\begin{minipage}{0.92\textwidth}
+\titlepagefont\normalsize
+\textbf{Хуваарилалтын код:} II-4-5\par\vspace{0.25cm}
+\textbf{Сурах бичгийн төсөл:} Operating System Concepts (2018), Chapter 4: Threads \& Concurrency, Programming Project 5\par\vspace{0.25cm}
+\textbf{Гүйцэтгэсэн багийн гишүүд:}\par\vspace{0.15cm}
+Д. Алтан-Очир (B221940001)\par
+Б. Аззаяа (B242270803)\par
+О. Энхжаргал (B232230049)\par
+Н. Мөнхбаяр (B242270058)\par
+Ц. Тэргэл (B241940128)\par
+А. Найдан (B241930004)\par\vspace{0.3cm}
+\textbf{Шалгасан багш:} Г. Ганбат /F.CS10/\par\vspace{0.25cm}
+\textbf{GitHub:} \url{https://github.com/Naidan2006/sudoku-validator}
+\end{minipage}
+\vfill
+{\titlepagefont Улаанбаатар хот\\2026 он}
+\end{center}
+\end{titlepage}
+\pagenumbering{roman}\tableofcontents\clearpage\pagenumbering{arabic}
+
+\chapter*{Хураангуй}\addcontentsline{toc}{chapter}{Хураангуй}
+Энэхүү төслөөр C хэл болон POSIX Threads (\texttt{pthread}) ашиглан 9$\times$9 хэмжээтэй Sudoku хүснэгтийн зөв эсэхийг олон урсгалаар шалгах програм боловсруулав. Шалгалтыг мөр, багана, есөн ширхэг 3$\times$3 дэд хүснэгтэд хувааж, нийт 11 шалгах урсгал ашиглана. GTK3 график интерфэйсийн хувилбарт хэрэглэгч хүснэгтийн утгыг оруулж, шалгуулж, засварлан дахин шалгах боломжтой. Интерфэйс нь дэлгэцийн хэмжээнд дасан зохицохуйц гүйлгэх хэсгүүдтэй бөгөөд 11 шалгалтын урсгалын төлөвийг тусгай самбарт харуулна. Програм шалгалтын хэсэг бүрийн PASS/FAIL үр дүн болон эцсийн VALID/INVALID төлөвийг харуулна. Хоосон нүд, буруу Sudoku, зөв Sudoku болон өгөгдлийг засварлан дахин шалгах нөхцөлийг туршсан. Туршилтын үр дүн болон дэлгэцийн зургуудыг холбогдох бүлэгт үзүүлэв.\\
+\textbf{Түлхүүр үг:} үйлдлийн систем, олон урсгал, pthread, Sudoku, GTK3.
+
+\chapter{Удиртгал}
+Олон урсгалт програмчлал нь нэг програмын дотор бие даасан ажлуудыг зэрэгцүүлэн гүйцэтгэх боломж олгодог. Энэхүү төсөл нь үйлдлийн системийн урсгал үүсгэх, гүйцэтгэлийг хүлээх болон үр дүнг нэгтгэх ойлголтыг бодит жишээгээр хэрэгжүүлнэ. Sudoku нь 9$\times$9 хүснэгтэд 1-ээс 9 хүртэлх тоог мөр, багана, 3$\times$3 дэд хүснэгт бүрд давхардалгүй байрлуулах дүрэмтэй.
+\section{Төслийн зорилго}
+C хэл, POSIX Threads ашиглан Sudoku хүснэгтийн мөр, багана, дэд хүснэгтийг олон урсгалаар шалгадаг, үр дүнг ойлгомжтой харуулдаг програм боловсруулах.
+\section{Зорилтууд}
+\begin{itemize}
+\item 9$\times$9 хүснэгтийн өгөгдөл хүлээн авах.
+\item Мөр, багана, есөн дэд хүснэгтийн шалгалтыг тус тусад нь гүйцэтгэх.
+\item \texttt{pthread\_create()} болон \texttt{pthread\_join()} ашиглан урсгалуудыг зохицуулах.
+\item Хоосон нүд, буруу оролтод мэдээлэл өгөх.
+\item GTK3 интерфэйсээр үр дүнг харуулж, засварлан дахин шалгах боломж олгох.
+\item Зөв болон буруу өгөгдлөөр туршилт хийж, үр дүнг баримтжуулах.
+\end{itemize}
+\section{Хамрах хүрээ}
+Програм нь Sudoku-г бодож шийдэхгүй, хэрэглэгчийн өгсөн 9$\times$9 хүснэгтийн зөв эсэхийг шалгана. Мөр бүр, багана бүр болон есөн 3$\times$3 дэд хүснэгтэд 1--9 тоо тус бүр нэг удаа орсон эсэхийг шалгана.
+
+\chapter{Сурах бичгийн шаардлага ба төслийн зорилт}
+Энэхүү төсөл нь \textit{Operating System Concepts} (2018) сурах бичгийн 4-р бүлэг болох \textit{Threads \& Concurrency}-ийн Programming Project 5 буюу Sudoku Solution Validator юм. Хуваарилалтын код: \textbf{II-4-5}. Доорх хүснэгтэд шаардлага ба програмын хэрэгжилтийн холбоог харуулав.
+\begin{table}[H]\centering\caption{Шаардлага ба хэрэгжилт}\begin{tabular}{p{0.4\textwidth}p{0.5\textwidth}}\toprule
+\textbf{Шаардлага}&\textbf{Хэрэгжилт}\\\midrule
+Үндсэн функц&Мөр, багана, 3$\times$3 дэд хүснэгтийг шалгана.\\
+Олон урсгал&Мөр шалгах 1, багана шалгах 1, дэд хүснэгт шалгах 9 урсгал.\\
+Өөр оролтоор турших&Хэрэглэгч утгаа оруулж, засаж, дахин шалгана.\\
+Алдааны мэдээлэл&Хоосон нүд болон дүрэм зөрчсөн өгөгдлийг илрүүлнэ.\\
+UI дүрслэл&GTK3 интерфэйс PASS/FAIL, VALID/INVALID төлөв харуулна.\\
+Ажиллуулах заавар&GitHub README болон Manual.pdf-д заавар байршуулна.\\\bottomrule\end{tabular}\end{table}
+
+\chapter{Онолын үндэс}
+\section{Процесс ба урсгал}
+Процесс нь програм ажиллах үеийн нөөц, санах ойн орчныг агуулна. Урсгал (thread) нь процесс дотор гүйцэтгэгдэх ажлын нэг дараалал юм. Нэг процессын урсгалууд өгөгдөл, кодоо хуваалцаж болох тул хамтын өгөгдөлд хандах ажиллагааг зөв зохицуулах шаардлагатай.
+\section{POSIX Threads}
+\texttt{pthread} нь POSIX орчинд урсгал үүсгэх, удирдах интерфэйс юм. \texttt{pthread\_create()} нь шинэ урсгал үүсгэж, \texttt{pthread\_join()} нь тухайн урсгал дуусахыг хүлээнэ. Програм эдгээр функцийн алдааг шалгаж, бүх шалгалт дууссаны дараа үр дүнг нэгтгэх ёстой.
+\section{Sudoku шалгах алгоритм}
+Зөв Sudoku-д мөр бүр, багана бүр болон 3$\times$3 дэд хүснэгт бүр 1--9 тоог тус бүр нэг удаа агуулна. Хэсэг бүрийг шалгахдаа тоо бүрийн давтамжийг шалгана. Аль нэг хэсэг дүрэм зөрчвөл FAIL; бүх хэсэг PASS бол VALID гэж үзнэ.
+\section{Урсгалын хуваарилалт}
+Програм 11 шалгах урсгал ашиглана: нэг нь мөрүүд, нэг нь баганууд, ес нь тус тусын 3$\times$3 дэд хүснэгтийг шалгана. Үндсэн урсгал шалгах урсгалуудыг үүсгэж, дуусахыг нь хүлээж, эцсийн үр дүнг нэгтгэнэ.
+
+\chapter{Системийн зохиомж}
+\section{Ерөнхий бүтэц}
+\begin{figure}[H]\centering\fbox{\parbox{0.82\textwidth}{\centering Хэрэглэгчийн 9$\times$9 оролт\\$\downarrow$\\GTK3 интерфэйс (\texttt{gui.c})\\$\downarrow$\\Шалгах логик (\texttt{sudoku\_core.c})\\$\downarrow$\\11 pthread урсгал: мөр (1), багана (1), дэд хүснэгт (9)\\$\downarrow$\\Үр дүн нэгтгэж PASS/FAIL, VALID/INVALID харуулах}}\caption{Системийн өгөгдлийн урсгал}\end{figure}
+\section{Програмын файлууд}
+\begin{table}[H]\centering\caption{Эх кодын бүтэц}\begin{tabular}{p{0.3\textwidth}p{0.6\textwidth}}\toprule
+\textbf{Файл}&\textbf{Үүрэг}\\\midrule
+\texttt{main.c}&Консолын хувилбарын оролт, үр дүнгийн харуулалт.\\
+\texttt{gui.c}&GTK3 график интерфэйс, хүснэгтийн утга ба үр дүн.\\
+\texttt{sudoku\_core.c}&Мөр, багана, дэд хүснэгтийн шалгалт, урсгалын зохицуулалт.\\
+\texttt{sudoku\_core.h}&Хэмжээ, урсгалын тоо, функцийн зарлалууд.\\
+\texttt{README.md}&Төслийн тайлбар, хурдан ажиллуулах заавар.\\
+\texttt{docs/Manual.pdf}&Хэрэглэгч болон ажиллуулах заавар.\\
+\texttt{docs/screenshots/}&Туршилтын дэлгэцийн зургууд.\\\bottomrule\end{tabular}\end{table}
+\section{Өгөгдөл ба үр дүнгийн урсгал}
+Хэрэглэгч хүснэгтийн утгыг интерфэйсээр оруулна. Програм оролтыг шалгаж, шалгах логикт дамжуулна. Урсгалууд өөр өөр хэсгийг шалгаж үр дүнгээ хадгална. Үндсэн урсгал бүх шалгалт дууссаны дараа үр дүнг нэгтгэн харуулна.
+
+\chapter{Хэрэгжилт}
+\section{Ашигласан технологи}
+\begin{itemize}\item C хэл -- шалгалтын алгоритм болон үндсэн логик.\item POSIX Threads (\texttt{pthread}) -- урсгал үүсгэх, дуусахыг хүлээх.\item GTK3 -- график интерфэйс.\item GCC -- эх код хөрвүүлэх.\item Windows болон MSYS2 UCRT64 -- хөгжүүлж, туршсан орчин.\end{itemize}
+Хөгжүүлэлт, туршилтад Windows 11, MSYS2 UCRT64, GCC, POSIX Threads (\texttt{pthread}) болон GTK3 ашигласан. GCC болон GTK3-ийн нарийн хувилбарын дугаарыг ашигласан орчноос тусад нь шалгаж тэмдэглэнэ.
+\section{Гол функцүүд}
+\begin{itemize}\item \texttt{check\_rows()} -- мөрүүдийг шалгана.\item \texttt{check\_columns()} -- багануудыг шалгана.\item \texttt{check\_subgrid()} -- нэг 3$\times$3 дэд хүснэгтийг шалгана.\item \texttt{validate\_sudoku()} -- шалгах урсгалуудыг зохицуулж үр дүнг нэгтгэнэ.\end{itemize}
+Функцийн нэрсийг төслийн эх кодтой нийцүүлэн тайлбарлав.
+\section{Хөрвүүлэх ба ажиллуулах}
+GTK3 суулгасан MSYS2 UCRT64 терминалд:
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true,frame=single]
+cd /c/OS-BD1/sudoku-validator
+gcc gui.c sudoku_core.c -o sudoku_gui.exe -pthread $(pkg-config --cflags --libs gtk+-3.0)
+./sudoku_gui.exe
+\end{lstlisting}
+Консолын хувилбар:
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true,frame=single]
+gcc main.c -o sudoku_validator.exe -pthread
+./sudoku_validator.exe
+\end{lstlisting}
+\section{Хэрэглэгчийн интерфэйс}
+График интерфэйс нь Sudoku хүснэгтийн нүднүүд, шалгах, цэвэрлэх, заавар үзэх товч болон шалгалтын үр дүнг харуулах хэсэгтэй. Хэрэглэгч утгаа оруулж шалгаад, үр дүнгээс хамааран өгөгдлөө засаж дахин шалгана.
+
+Интерфэйсийн responsive байдлыг сайжруулахын тулд тоглоомын хуудасны агуулгыг босоо гүйлгэх боломжтой болгож, зааврын хуудасны агуулгыг гүйлгэх хэсэгт байрлуулсан. Ингэснээр цонхны өндөр бага үед зааврын агуулга гүйлгэгдэж, “Тоглоом эхлэх” товч доод хэсэгт харагдах боломжтой. Урсгалын төлөвийн самбарын 11 төлөвийг хоёр баганад байрлуулж, дэлгэцийн өргөнд тохируулан текст мөр шилжихээр зохион байгуулсан.
+
+Шалгалтын ажиллагааг GTK-ийн үндсэн UI урсгалаас тусад нь ажиллуулснаар шалгалт хийгдэж байх үед интерфэйсийн хариу үйлдлийг хадгалах зорилготой. Үр дүнг UI-д үндсэн GTK урсгалаар дамжуулан шинэчилнэ. Урсгалын төлөвийн самбар нь мөр шалгах нэг урсгал, багана шалгах нэг урсгал, 3$\times$3 дэд хүснэгт тус бүрийг шалгах есөн урсгалын төлөвийг харуулна. Төлөвийн утгууд нь WAITING, RUNNING, PASS, FAIL болон ERROR байна.
+
+\chapter{Туршилт ба UI дүрслэл}
+\section{Туршилтын орчин}
+Үйлдлийн систем: Windows 11; хөгжүүлэлтийн орчин: MSYS2 UCRT64; хөрвүүлэгч: GCC; урсгалын сан: POSIX Threads (\texttt{pthread}); график интерфэйс: GTK3; эх код: \repo. GCC болон GTK3-ийн нарийн хувилбарын дугаарыг ашигласан орчноос тусад нь шалгаж тэмдэглэнэ.
+\section{Хоосон нүдтэй оролт}
+Хүснэгтийн зарим нүд хоосон үед програм алдааны мэдээлэл харуулж байгааг шалгасан.
+\shot{gui-empty-cell.png}{Хоосон нүдтэй оролтын алдааны мэдээлэл}
+\section{Буруу Sudoku}
+Дүрэм зөрчсөн өгөгдөлд INVALID төлөв гарч, зөрчил илэрсэн хэсэг FAIL болж байгааг шалгасан.
+\shot{gui-invalid-sudoku.png}{Буруу Sudoku-ийн шалгалтын үр дүн}
+\section{Хэсэгчилсэн PASS/FAIL үр дүн}
+Зарим мөр PASS боловч багана болон зарим дэд хүснэгт FAIL болсон жишээг харуулав.
+\shot{gui-row-column-subgrid-fail.png}{Мөр, багана, дэд хүснэгтийн шалгалтын үр дүн}
+\section{Зөв Sudoku}
+Бүх мөр, багана, есөн дэд хүснэгт PASS болсон үед VALID төлөв гарч байгааг шалгасан.
+\shot{gui-valid-sudoku.png}{Зөв Sudoku-ийн шалгалтын үр дүн}
+\section{Урсгалын төлөвийн самбар ба responsive интерфэйс}
+Зөв Sudoku оруулах туршилтаар мөрийн шалгалт, баганын шалгалт болон есөн дэд хүснэгтийн шалгалтын үр дүн бүгд PASS болсон. Үр дүнгийн доорх урсгалын төлөвийн самбарт нийт 11 шалгалтын үр дүн тус тусдаа харагдаж байгааг баталгаажуулав. Тоглоомын хэсгийн агуулга гүйлгэх боломжтой бөгөөд урсгалын мэдээллийг хоёр баганад байрлуулсан. Хавсаргасан зураг нь зөв Sudoku-ийн дараах бодит интерфэйсийн байдлыг харуулна.
+\shot{gui-thread-status-pass.png}{Responsive интерфэйс болон 11 урсгалын PASS төлөв}
+
+\chapter{Туршилтын арга ба тестийн хүснэгт}
+Тест бүрд оролт, хүлээгдэж буй үр дүнг урьдчилан тодорхойлж, програмын бодит үр дүнтэй харьцуулна. Туршилтын өгөгдлийг туршилтын кейс бүрийн үр дүнтэй тулган баталгаажуулна.
+\begin{longtable}{p{0.07\textwidth}p{0.23\textwidth}p{0.3\textwidth}p{0.28\textwidth}}\caption{Туршилтын кейсүүд}\label{tab:tests}\\\toprule
+\textbf{№}&\textbf{Тест}&\textbf{Хүлээгдэж буй үр дүн}&\textbf{Бодит үр дүн}\\\midrule\endfirsthead
+\toprule\textbf{№}&\textbf{Тест}&\textbf{Хүлээгдэж буй үр дүн}&\textbf{Бодит үр дүн}\\\midrule\endhead
+1&Хоосон нүд&Алдааны мэдээлэл харуулна&Хоосон нүдний мөр, баганын байрлалтай алдааны мэдэгдэл гарсан.\\
+2&Буруу Sudoku&Холбогдох хэсэг FAIL; INVALID&INVALID төлөв гарч, зөрчилтэй хэсгүүд FAIL болсон.\\
+3&Хэсэгчилсэн алдаа&Мөр, багана, дэд хүснэгтийн PASS/FAIL төлөв харагдана&Мөр, багана болон дэд хүснэгтийн PASS/FAIL төлөвүүд тус тусдаа харагдсан.\\
+4&Зөв Sudoku&Бүх хэсэг PASS; VALID&VALID мэдэгдэл гарч, мөр, багана, есөн дэд хүснэгт бүгд PASS болсон.\\
+\bottomrule\end{longtable}
+\section{Тестийн өгөгдөл}
+Доорх хүснэгтэд Sudoku-ийн тестийн өгөгдлийг бүртгэх загварыг үзүүлэв. Эцсийн хувилбарт бодит тестийн өгөгдлөөр солих шаардлагатай.
+\begin{center}\small\begin{tabular}{|*{9}{>{\centering\arraybackslash}p{0.55cm}|}}\hline
+1&2&3&4&5&6&7&8&9\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline
+[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]&[ ]\\\hline\end{tabular}\end{center}
+
+\chapter{Үр дүн}
+Туршилтын үеийн ажиглалтаар хоосон нүдтэй оролтод алдааны мэдээлэл гарсан; буруу Sudoku-д INVALID төлөв болон зарим FAIL үр дүн гарсан; зөв Sudoku-д бүх мөр, багана, дэд хүснэгтийн шалгалт PASS болж VALID төлөв гарсан. Эдгээр мэдэгдлийг өөрийн бодит тест, screenshot-тай тулгаж баталгаажуулна.
+\begin{table}[H]\centering\caption{Үр дүнгийн нэгтгэл}\begin{tabular}{p{0.32\textwidth}p{0.25\textwidth}p{0.3\textwidth}}\toprule
+\textbf{Нөхцөл}&\textbf{Хүлээгдэж буй төлөв}&\textbf{Нотолгоо}\\\midrule
+Хоосон нүд&Алдааны мэдээлэл&\texttt{gui-empty-cell.png}\\
+Буруу Sudoku&INVALID / FAIL&\texttt{gui-invalid-sudoku.png}\\
+Хэсэгчилсэн алдаа&PASS ба FAIL&\texttt{gui-row-column-subgrid-fail.png}\\
+Зөв Sudoku&VALID / бүх PASS&\texttt{gui-valid-sudoku.png}\\\bottomrule\end{tabular}\end{table}
+
+\chapter{Хэлэлцүүлэг ба хязгаарлалт}
+Олон урсгал ашигласнаар Sudoku-ийн бие даасан хэсгүүдийг тус тусад нь шалгах боломжтой болсон. PASS/FAIL үр дүн нь алдаа илэрсэн хэсгийг ойлгоход тусална. GTK3 интерфэйс нь хүснэгт оруулах, шалгах, засварлан дахин шалгах боломж олгодог. Responsive зохион байгуулалт нь жижиг цонхонд агуулгыг гүйлгэх боломжтой болгож, урсгалын төлөвийн самбараар 11 шалгалтын үр дүнг тус тусад нь харах боломж бүрдүүлсэн. Програм Sudoku-г бодож шийдэхгүй, зөвхөн өгөгдсөн шийдлийн зөв эсэхийг шалгана. График хувилбарт GTK3 болон тохирох MSYS2 UCRT64 орчин шаардлагатай. Гүйцэтгэлийн хурдны хэмжилт хийгээгүй бол тоон үзүүлэлт зохиож оруулахгүй.
+
+\chapter{Дүгнэлт}
+Энэ төслөөр C хэл, POSIX Threads болон GTK3 ашигласан олон урсгалт Sudoku шалгагчийн консол болон график хувилбарыг боловсруулав. Шалгалтыг мөр, багана болон есөн 3$\times$3 дэд хүснэгтэд хуваарилж, нийт 11 урсгал ашигласан. Туршилтаар хоосон нүд, буруу Sudoku, зөв Sudoku болон засварлан дахин шалгах нөхцөлийг авч үзсэн. Цаашид оролтын баталгаажуулалтыг сайжруулах, бусад орчинд ажиллуулах зааврыг өргөжүүлэх, гүйцэтгэлийг хэмжих боломжтой.
+
+\chapter*{Ашигласан материал}\addcontentsline{toc}{chapter}{Ашигласан материал}
+\begin{enumerate}
+\item F.CSM302 Үйлдлийн систем, Бие даалт 1-ын заавар. Хичээлийн материалаас авсан.
+\item The Open Group. POSIX Threads API. \url{https://pubs.opengroup.org/onlinepubs/9699919799/}
+\item GTK Project. GTK 3 Reference Manual. \url{https://docs.gtk.org/gtk3/}
+\item GNU Compiler Collection. \url{https://gcc.gnu.org/}
+\item Sudoku Validator төслийн эх код. \repo
+\item Код, тайлбар, баримтжуулалт боловсруулахад ChatGPT-ийн тусламж ашигласан.
+\end{enumerate}
+
+\chapter*{Багийн гишүүд ба ажлын хуваарилалт}
+\addcontentsline{toc}{chapter}{Багийн гишүүд ба ажлын хуваарилалт}
+Доорх хүснэгтэд багийн ажлын хуваарилалтыг нэгтгэв. Үүргүүдийг багийн бодит оролцоотой нийцүүлэн эцэслэн баталгаажуулна.
+
+\begin{longtable}{p{0.31\textwidth}p{0.59\textwidth}}
+\caption{Багийн ажлын санал болгосон хуваарилалт}\\
+\toprule
+\textbf{Гишүүн} & \textbf{Хариуцах ажил}\\
+\midrule
+Д. Алтан-Очир (B221940001) & Sudoku шалгах алгоритмын шаардлага, мөр болон багана шалгах логикийг хянах; алгоритмын тайлбар боловсруулах.\\
+Б. Аззаяа (B242270803) & GTK3 интерфэйсийн зохиомж, хэрэглэгчийн оролт болон товчлууруудын ажиллагааг шалгах.\\
+О. Энхжаргал (B232230049) & Олон урсгалын зохицуулалт, \texttt{pthread} функцүүдийн тайлбар болон эх кодын хяналт.\\
+Н. Мөнхбаяр (B242270058) & Туршилтын кейсүүд бэлтгэх, зөв/буруу Sudoku-ийн үр дүнг шалгах, тестийн хүснэгт бүрдүүлэх.\\
+Ц. Тэргэл (B241940128) & Хоосон нүд болон алдаатай оролтын туршилт, дэлгэцийн зураг болон хэрэглэгчийн зааврын хяналт.\\
+А. Найдан (B241930004) & GitHub repository, README/Manual-ийн уялдаа, тайланг нэгтгэх, LaTeX хувилбар болон эцсийн шалгалт.\\
+\bottomrule
+\end{longtable}
+
+\noindent\textbf{Тайлбар:} Ажлын хуваарилалтыг багийн гишүүдийн бодит оролцоотой тулган баталгаажуулна.
+
+\appendix\chapter{Эцсийн хувилбарын шалгах хуудас}
+\begin{itemize}
+\item[$\square$] Хуваарилалтын код, багийн гишүүдийн нэр, оюутны кодыг бөглөсөн.
+\item[$\square$] Сурах бичгийн төслийн нэр, бүлэг, дугаарыг багшийн материалтай тулгасан.
+\item[$\square$] Screenshot файлын нэр, замыг шалгаж, бодит зургуудыг оруулсан.
+\item[$\square$] Тест бүрийн оролт, хүлээгдэж буй болон бодит үр дүнг бөглөсөн.
+\item[$\square$] GCC, GTK3, үйлдлийн системийн хувилбарыг бодитоор тэмдэглэсэн.
+\item[$\square$] Manual.pdf, README.md, GitHub Release/Tag-ийг шалгасан.
+\item[$\square$] GitHub холбоос, Teams-ийн постыг шалгасан.
+\item[$\square$] Ашигласан эх сурвалж, AI-ийн хэрэглээг үнэн зөв дурдсан.
+\end{itemize}
+\end{document}
