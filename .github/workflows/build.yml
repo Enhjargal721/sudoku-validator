@@ -15,8 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install GCC
-        run: sudo apt-get update && sudo apt-get install -y gcc
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc libgtk-3-dev pkg-config
 
-      - name: Compile program
-        run: gcc -Wall -Wextra -pthread main.c -o sudoku_validator
+      - name: Build terminal version
+        run: |
+          gcc -Wall -Wextra -pthread main.c -o sudoku_validator
+
+      - name: Build GUI version
+        run: |
+          gcc -Wall -Wextra -pthread gui.c sudoku_core.c -o sudoku_gui $(pkg-config --cflags --libs gtk+-3.0)

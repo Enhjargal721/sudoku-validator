@@ -1,1 +1,9 @@
 *.exe
+
+# Local backup files
+*_backup.*
+
+# Temporary documentation files
+docs/Manual_new.pdf
+docs/Manual_old.txt
+.gitignore_backup
